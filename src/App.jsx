@@ -240,7 +240,7 @@ function Welcome({ onStart }) {
   return (
     <div className="text-center space-y-6">
       <img src="logo.png" alt="Logo" className="mx-auto h-24" />
-      <button onClick={onStart} className="px-8 py-4 text-xl rounded-2xl bg-blue-600 text-white shadow">PIN</button>
+      <button onClick={onStart} className="px-8 py-4 text-xl rounded-2xl bg-green-600 text-white shadow">PIN</button>
     </div>
   );
 }
