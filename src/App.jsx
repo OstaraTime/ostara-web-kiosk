@@ -18,6 +18,7 @@ export default function App() {
   const [actions, setActions] = useState([]);
   const [result, setResult] = useState(null); // success | failure
   const [errorMessage, setErrorMessage] = useState("");
+  const [weather, setWeather] = useState(null);
 
   // on-device config options
   const [API_URL, setApiUrl] = useState(null);
@@ -32,7 +33,26 @@ export default function App() {
     } else {
       loadConfig();
     }
+    fetchWeather();
   }, []);
+
+
+  const fetchWeather = async () => {
+    try {
+      const res = await fetch(
+        "https://api.open-meteo.com/v1/forecast?latitude=46.05&longitude=14.51&current_weather=true"
+      );
+
+      const data = await res.json();
+
+      if (data.current_weather) {
+        setWeather(data.current_weather);
+      }
+    } catch (err) {
+      console.log("Weather unavailable (expected in kiosk/offline)", err);
+    }
+  };
+
 
   const loadConfig = () => {
     try {
@@ -200,7 +220,12 @@ export default function App() {
 
   return (
     <div className="w-screen h-screen flex items-center justify-center bg-gray-100">
-      {screen === SCREENS.WELCOME && <Welcome onStart={() => setScreen(SCREENS.PIN)} />}
+      {screen === SCREENS.WELCOME && (
+        <Welcome
+          onStart={() => setScreen(SCREENS.PIN)}
+          weather={weather}
+        />
+      )}
       {screen === SCREENS.PIN && <PinScreen pin={pin} onDigit={handleDigit} />}
       {screen === SCREENS.ACTIONS && <ActionScreen userName={userName} actions={actions} onSelect={sendAction} />}
       {screen === SCREENS.RESULT && <ResultScreen result={result} />}
@@ -236,14 +261,28 @@ function ConfigEditor({ onSave }) {
   );
 }
 
-function Welcome({ onStart }) {
+function Welcome({ onStart, weather }) {
   return (
     <div className="text-center space-y-6">
-      <img src="logo.png" alt="Logo" className="mx-auto h-24" />
-      <button onClick={onStart} className="px-8 py-4 text-xl rounded-2xl bg-green-600 text-white shadow">PIN</button>
+      <img src="/logo.png" alt="Logo" className="mx-auto h-24" />
+
+      {weather && (
+        <div className="text-gray-600 text-lg">
+          🌡 {weather.temperature}°C  
+          💨 {weather.windspeed} km/h
+        </div>
+      )}
+
+      <button
+        onClick={onStart}
+        className="px-8 py-4 text-xl rounded-2xl bg-blue-600 text-white shadow"
+      >
+        PIN
+      </button>
     </div>
   );
 }
+
 
 function PinScreen({ pin, onDigit }) {
   const digits = [1,2,3,4,5,6,7,8,9,0];
