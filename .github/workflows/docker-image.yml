@@ -1,0 +1,48 @@
+name: Build and Push Image
+
+on:
+  push:
+    branches: [ "release" ]
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Debug secrets presence
+        run: |
+          echo "USER set? ${{ vars.DH_USER != '' }}"
+          echo "PASS set? ${{ secrets.DH_PASS != '' }}"
+          echo "REPO set? ${{ vars.DH_REPO != '' }}"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DH_USER }}
+          password: ${{ secrets.DH_PASS }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Build image
+        run: docker build -t ${{ vars.DH_REPO }}:${{ github.sha }} .
+
+      - name: Tag latest
+        run: |
+          docker tag "${{ vars.DH_REPO }}:${{ github.sha }}" "${{ vars.DH_REPO }}:latest"
+
+      - name: Push images
+        run: |
+          docker push ${{ vars.DH_REPO }}:${{ github.sha }}
+          docker push ${{ vars.DH_REPO }}:latest
