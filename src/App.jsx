@@ -264,7 +264,7 @@ function ConfigEditor({ onSave }) {
 function Welcome({ onStart, weather }) {
   return (
     <div className="text-center space-y-6">
-      <img src="/logo.png" alt="Logo" className="mx-auto h-24" />
+      <img src="logo.png" alt="Logo" className="mx-auto h-24" />
 
       {weather && (
         <div className="text-gray-600 text-lg">
