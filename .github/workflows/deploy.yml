@@ -13,4 +13,4 @@ jobs:
     steps:
       - name: Deploy applications
         run: |
-          kubectl rollout restart deployment ostara-web-kiosk
+          kubectl rollout restart deployment ostara-web-kiosk -n ostara
